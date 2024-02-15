@@ -12,20 +12,20 @@ var store = NewMemoryStore()
 func TestMemoryStore(t *testing.T) {
 	stream := streamName()
 	t.Run("appending events to a stream", func(t *testing.T) {
-		event := StreamMessage{
-			Data: struct{}{},
-			Meta: struct{}{},
+		event := Message{
+			Data: []byte("data"),
+			Meta: []byte("meta"),
 		}
-		var events []StreamMessage
+		var events []Message
 		events = append(events, event)
-		err := store.appendEvents(events, stream, int64(0))
+		err := store.AppendEvents(events, stream, int64(0))
 		if err != nil {
 			panic(err)
 		}
 	})
 
 	t.Run("reading events from a stream", func(t *testing.T) {
-		err, events := store.readStream(stream, int64(0))
+		err, events := store.ReadStream(stream, int64(0))
 		if err != nil {
 			panic(err)
 		}
@@ -34,7 +34,7 @@ func TestMemoryStore(t *testing.T) {
 		}
 	})
 	t.Run("reading events from a non-existed stream", func(t *testing.T) {
-		err, events := store.readStream("empty", int64(0))
+		err, events := store.ReadStream("empty", int64(0))
 		if err != nil {
 			panic(err)
 		}
@@ -45,17 +45,17 @@ func TestMemoryStore(t *testing.T) {
 
 	t.Run("reading events from a position", func(t *testing.T) {
 		// append another event
-		event := StreamMessage{
-			Data: struct{}{},
-			Meta: struct{}{},
+		event := Message{
+			Data: []byte("more-data"),
+			Meta: []byte("more-meta"),
 		}
-		var events []StreamMessage
+		var events []Message
 		events = append(events, event)
-		err := store.appendEvents(events, stream, int64(1))
+		err := store.AppendEvents(events, stream, int64(1))
 		if err != nil {
 			panic(err)
 		}
-		err, result := store.readStream(stream, int64(1))
+		err, result := store.ReadStream(stream, int64(1))
 		if err != nil {
 			panic(err)
 		}

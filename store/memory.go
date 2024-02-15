@@ -30,7 +30,7 @@ func filter(msgs []Message, fn func(Message) bool) []Message {
 	return result
 }
 
-func (store *MemoryStore) readStream(stream string, fromPosition int64) (error, []Message) {
+func (store *MemoryStore) ReadStream(stream string, fromPosition int64) (error, []Message) {
 	events, exists := store.streams[stream]
 	if !exists {
 		var result []Message
@@ -45,8 +45,8 @@ func currentPosition(events []Message) int64 {
 	return int64(len(events))
 }
 
-func (store *MemoryStore) appendEvents(events []StreamMessage, stream string, expectedPosition int64) error {
-	err, currentEvents := store.readStream(stream, 0)
+func (store *MemoryStore) AppendEvents(events []Message, stream string, expectedPosition int64) error {
+	err, currentEvents := store.ReadStream(stream, 0)
 	if err != nil {
 		return err
 	}

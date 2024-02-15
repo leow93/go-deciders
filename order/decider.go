@@ -1,5 +1,7 @@
 package order
 
+import "fmt"
+
 type Item struct {
 	itemId    int
 	productId int
@@ -100,4 +102,10 @@ func reduce(state State, events []Event) State {
 
 func Fold(events []Event) State {
 	return reduce(initialState(), events)
+}
+
+const Category = "Order"
+
+func StreamId(orderId int) string {
+	return Category + "-" + fmt.Sprint(orderId)
 }

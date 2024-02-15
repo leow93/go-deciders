@@ -3,18 +3,13 @@ package store
 type Message struct {
 	Id             string
 	Stream         string
-	Data           struct{}
-	Meta           struct{}
+	Data           []byte
+	Meta           []byte
 	Position       int64
 	GlobalPosition int64
 }
 
-type StreamMessage struct {
-	Data struct{}
-	Meta struct{}
-}
-
 type EventStore interface {
-	readStream(stream string, fromPosition int64) (error, []Message)
-	appendEvents(events []StreamMessage, stream string, expectedPosition int64) error
+	ReadStream(stream string, fromPosition int64) (error, []Message)
+	AppendEvents(events []Message, stream string, expectedPosition int64) error
 }
