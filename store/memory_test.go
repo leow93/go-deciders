@@ -14,10 +14,6 @@ func streamName() string {
 
 var store = NewMemoryStore()
 
-func appendEvents(store *MemoryStore, events []Message, stream string, expectedPosition int64) error {
-	return store.AppendEvents(events, stream, expectedPosition)
-}
-
 func TestMemoryStore(t *testing.T) {
 	t.Run("appending events to a stream", func(t *testing.T) {
 		stream := streamName()
