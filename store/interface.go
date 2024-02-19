@@ -12,4 +12,6 @@ type Message struct {
 type EventStore interface {
 	ReadStream(stream string, fromPosition int64) (error, []Message)
 	AppendEvents(events []Message, stream string, expectedPosition int64) error
+	SubscribeToStream(stream string, fromPosition int64) (error, <-chan Message)
+	SubscribeToCategory(category string, fromPosition int64) (error, <-chan Message)
 }
