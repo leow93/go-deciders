@@ -1,21 +1,23 @@
 package store
 
 import (
-	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"strings"
 	"sync"
+
+	"github.com/google/uuid"
 )
 
-type streams map[string][]Message
-type categories map[string][]Message
-type MemoryStore struct {
-	globalPosition int64
-	streams        streams
-	categories     categories
-	mutexes        sync.Map
-}
+type (
+	streams     map[string][]Message
+	categories  map[string][]Message
+	MemoryStore struct {
+		globalPosition int64
+		streams        streams
+		categories     categories
+		mutexes        sync.Map
+	}
+)
 
 func NewMemoryStore() *MemoryStore {
 	streams := make(map[string][]Message)
@@ -38,9 +40,9 @@ func filter(msgs []Message, fn func(Message) bool) []Message {
 	return result
 }
 
-func (store *MemoryStore) ReadStream(stream string, fromPosition int64) (error, []Message) {
+func (store *MemoryStore) ReadStream(stream string, fromPosition int64) ([]Message, error) {
 	events := store.streams[stream][fromPosition:]
-	return nil, events
+	return events, nil
 }
 
 func currentPosition(events []Message) int64 {
@@ -63,16 +65,16 @@ func (store *MemoryStore) AppendEvents(events []Message, stream string, expected
 	category := categoryName(stream)
 	unlock := store.lockCategory(category)
 	defer unlock()
-	err, currentEvents := store.ReadStream(stream, 0)
+	currentEvents, err := store.ReadStream(stream, 0)
 	if err != nil {
 		return err
 	}
 	position := currentPosition(currentEvents)
 
 	if expectedPosition != position {
-		return errors.New(fmt.Sprintf("Expected %d, got %d", expectedPosition, position))
+		return fmt.Errorf("expected %d, got %d", expectedPosition, position)
 	}
-	var result = currentEvents
+	result := currentEvents
 	for i, ev := range events {
 		event := Message{
 			Id:             uuid.NewString(),
@@ -90,10 +92,10 @@ func (store *MemoryStore) AppendEvents(events []Message, stream string, expected
 	return nil
 }
 
-func (store *MemoryStore) SubscribeToStream(stream string, fromPosition int64) (error, <-chan Message) {
-	err, events := store.ReadStream(stream, fromPosition)
+func (store *MemoryStore) SubscribeToStream(stream string, fromPosition int64) (<-chan Message, error) {
+	events, err := store.ReadStream(stream, fromPosition)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 	ch := make(chan Message)
 	go func() {
@@ -101,9 +103,9 @@ func (store *MemoryStore) SubscribeToStream(stream string, fromPosition int64) (
 			ch <- event
 		}
 	}()
-	return nil, ch
+	return ch, nil
 }
 
-func (store *MemoryStore) SubscribeToCategory(category string, fromPosition int64) (error, <-chan Message) {
-	return nil, make(chan Message)
+func (store *MemoryStore) SubscribeToCategory(category string, fromPosition int64) (<-chan Message, error) {
+	return make(chan Message), nil
 }

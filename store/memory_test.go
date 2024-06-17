@@ -5,8 +5,9 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 )
-import "github.com/google/uuid"
 
 func streamName() string {
 	return "Test-" + uuid.NewString()
@@ -71,7 +72,7 @@ func TestMemoryStore(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err, events = store.ReadStream(stream, int64(0))
+		events, err = store.ReadStream(stream, int64(0))
 		if err != nil {
 			panic(err)
 		}
@@ -80,7 +81,7 @@ func TestMemoryStore(t *testing.T) {
 		}
 	})
 	t.Run("reading events from a non-existent stream", func(t *testing.T) {
-		err, events := store.ReadStream("empty", int64(0))
+		events, err := store.ReadStream("empty", int64(0))
 		if err != nil {
 			panic(err)
 		}
@@ -104,7 +105,7 @@ func TestMemoryStore(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err, result := store.ReadStream(stream, int64(1))
+		result, err := store.ReadStream(stream, int64(1))
 		if err != nil {
 			panic(err)
 		}
@@ -127,8 +128,7 @@ func TestMemoryStore(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err, ch := store.SubscribeToStream(streamName, int64(0))
-
+		ch, err := store.SubscribeToStream(streamName, int64(0))
 		if err != nil {
 			panic(err)
 		}
@@ -167,8 +167,7 @@ func TestMemoryStore(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		err, ch := store.SubscribeToStream(streamName, int64(2))
-
+		ch, err := store.SubscribeToStream(streamName, int64(2))
 		if err != nil {
 			panic(err)
 		}
